@@ -3,21 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import Confetti from 'react-confetti';
 
-// Sound effects with error handling
-const playSound = (sound) => {
-  try {
-    sound.currentTime = 0;
-    sound.play().catch(err => console.log('Sound play failed:', err));
-  } catch (err) {
-    console.log('Sound error:', err);
-  }
+// Background music setup
+const createBackgroundMusic = () => {
+  const audio = new Audio();
+  audio.volume = 0.3;
+  audio.loop = true;
+  
+  // Try to load the sound
+  const loadSound = async () => {
+    try {
+      audio.src = '/sounds/background.mp3';
+      await audio.load();
+      console.log('Background music loaded successfully');
+    } catch (err) {
+      console.error('Failed to load background music:', err);
+    }
+  };
+  
+  loadSound();
+  return audio;
 };
 
-const coinSound = new Audio('/sounds/coin.mp3');
-const selectSound = new Audio('/sounds/select.mp3');
-const startSound = new Audio('/sounds/start.mp3');
-const backgroundMusic = new Audio('/sounds/arcade-background.mp3');
-backgroundMusic.loop = true;
+const backgroundMusic = createBackgroundMusic();
 
 const Container = styled.div`
   min-height: 100vh;
@@ -265,22 +272,69 @@ const BirthdayInvite = () => {
   const [easterEggs, setEasterEggs] = useState([]);
   const containerRef = useRef(null);
 
-  // Background music control with error handling
+  // Background music control with improved error handling
   useEffect(() => {
-    if (isMusicPlaying) {
-      try {
-        backgroundMusic.play().catch(err => {
-          console.log('Background music play failed:', err);
+    const playMusic = async () => {
+      if (isMusicPlaying) {
+        try {
+          // Reset the audio to the beginning
+          backgroundMusic.currentTime = 0;
+          // Try to play the music
+          await backgroundMusic.play();
+          console.log('Background music started playing');
+        } catch (err) {
+          console.error('Failed to play background music:', err);
           setIsMusicPlaying(false);
-        });
-      } catch (err) {
-        console.log('Background music error:', err);
-        setIsMusicPlaying(false);
+        }
+      } else {
+        backgroundMusic.pause();
       }
-    } else {
-      backgroundMusic.pause();
-    }
+    };
+
+    playMusic();
   }, [isMusicPlaying]);
+
+  // Cleanup music on unmount
+  useEffect(() => {
+    return () => {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0;
+    };
+  }, []);
+
+  const handleStart = () => {
+    // Ensure music starts playing when game starts
+    setIsMusicPlaying(true);
+    setShowContent(true);
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 5000);
+  };
+
+  const handleInfoClick = (type) => {
+    createButtonPress();
+    setScore(prev => prev + 10);
+    switch(type) {
+      case 'location':
+        window.open('https://maps.google.com/?q=129+William+Mundy+Way,+Dartford,+UK');
+        break;
+      case 'calendar':
+        window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Temi%27s+25th+Birthday&dates=20250615T120000Z/20250615T230000Z&location=129+William+Mundy+Way,+Dartford,+UK');
+        break;
+      case 'share':
+        window.open('https://wa.me/?text=Hey!%20I%20just%20got%20invited%20to%20Temi%27s%2025th%20Birthday!%20Are%20you%20going?');
+        break;
+    }
+  };
+
+  const handleEasterEggClick = (id) => {
+    setScore(prev => prev + 50);
+    setEasterEggs(prev => prev.filter(egg => egg.id !== id));
+    createButtonPress();
+  };
+
+  const toggleMusic = () => {
+    setIsMusicPlaying(prev => !prev);
+  };
 
   // Create easter eggs
   useEffect(() => {
@@ -322,47 +376,6 @@ const BirthdayInvite = () => {
     const interval = setInterval(animateScanline, 50);
     return () => clearInterval(interval);
   }, []);
-
-  const handleStart = () => {
-    playSound(startSound);
-    setIsMusicPlaying(true);
-    setShowContent(true);
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 5000);
-  };
-
-  const handleInfoClick = (type) => {
-    playSound(selectSound);
-    createButtonPress();
-    setScore(prev => prev + 10);
-    switch(type) {
-      case 'location':
-        window.open('https://maps.google.com/?q=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'calendar':
-        window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Temi%27s+25th+Birthday&dates=20250615T120000Z/20250615T230000Z&location=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'share':
-        window.open('https://wa.me/?text=Hey!%20I%20just%20got%20invited%20to%20Temi%27s%2025th%20Birthday!%20Are%20you%20going?');
-        break;
-    }
-  };
-
-  const handleHover = () => {
-    playSound(coinSound);
-  };
-
-  const handleEasterEggClick = (id) => {
-    playSound(coinSound);
-    setScore(prev => prev + 50);
-    setEasterEggs(prev => prev.filter(egg => egg.id !== id));
-    createButtonPress();
-  };
-
-  const toggleMusic = () => {
-    setIsMusicPlaying(prev => !prev);
-    playSound(coinSound);
-  };
 
   const createButtonPress = () => {
     const press = {
@@ -482,7 +495,6 @@ const BirthdayInvite = () => {
                 </Title>
                 <StartButton
                   onClick={handleStart}
-                  onMouseEnter={handleHover}
                   whileHover={{ 
                     scale: 1.1,
                     boxShadow: "0 0 30px rgba(255, 0, 128, 0.8)"
@@ -509,7 +521,6 @@ const BirthdayInvite = () => {
 
                 <InfoBox 
                   onClick={() => handleInfoClick('location')}
-                  onMouseEnter={handleHover}
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
@@ -525,7 +536,6 @@ const BirthdayInvite = () => {
 
                 <InfoBox 
                   onClick={() => handleInfoClick('calendar')}
-                  onMouseEnter={handleHover}
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
@@ -541,7 +551,6 @@ const BirthdayInvite = () => {
 
                 <InfoBox 
                   onClick={() => handleInfoClick('share')}
-                  onMouseEnter={handleHover}
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
@@ -557,7 +566,6 @@ const BirthdayInvite = () => {
 
                 <StartButton
                   onClick={() => window.location.reload()}
-                  onMouseEnter={handleHover}
                   whileHover={{ 
                     scale: 1.1,
                     boxShadow: "0 0 30px rgba(255, 0, 128, 0.8)"
