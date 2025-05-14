@@ -3,29 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import Confetti from 'react-confetti';
 
-// Background music setup
-const createBackgroundMusic = () => {
-  const audio = new Audio();
-  audio.volume = 0.3;
-  audio.loop = true;
-  
-  // Try to load the sound
-  const loadSound = async () => {
-    try {
-      audio.src = '/sounds/background.mp3';
-      await audio.load();
-      console.log('Background music loaded successfully');
-    } catch (err) {
-      console.error('Failed to load background music:', err);
-    }
-  };
-  
-  loadSound();
-  return audio;
-};
-
-const backgroundMusic = createBackgroundMusic();
-
 const Container = styled.div`
   min-height: 100vh;
   width: 100vw;
@@ -208,28 +185,18 @@ const Vignette = styled.div`
   z-index: 2;
 `;
 
-const SoundControl = styled(motion.button)`
+const ScoreDisplay = styled(motion.div)`
   position: fixed;
   top: 20px;
-  right: 20px;
+  left: 20px;
   background: rgba(255, 0, 128, 0.2);
   border: 2px solid #ff0080;
   color: #ff0080;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
   z-index: 100;
-  font-size: 1.5rem;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   backdrop-filter: blur(5px);
-
-  &:hover {
-    background: rgba(255, 0, 128, 0.3);
-  }
 `;
 
 const EasterEgg = styled(motion.div)`
@@ -247,94 +214,15 @@ const EasterEgg = styled(motion.div)`
   }
 `;
 
-const ScoreDisplay = styled(motion.div)`
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 0, 128, 0.2);
-  border: 2px solid #ff0080;
-  color: #ff0080;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 1rem;
-  z-index: 100;
-  backdrop-filter: blur(5px);
-`;
-
 const BirthdayInvite = () => {
   const [showContent, setShowContent] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [pixels, setPixels] = useState([]);
   const [scanlinePosition, setScanlinePosition] = useState(0);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [buttonPresses, setButtonPresses] = useState([]);
   const [score, setScore] = useState(0);
   const [easterEggs, setEasterEggs] = useState([]);
   const containerRef = useRef(null);
-
-  // Background music control with improved error handling
-  useEffect(() => {
-    const playMusic = async () => {
-      if (isMusicPlaying) {
-        try {
-          // Reset the audio to the beginning
-          backgroundMusic.currentTime = 0;
-          // Try to play the music
-          await backgroundMusic.play();
-          console.log('Background music started playing');
-        } catch (err) {
-          console.error('Failed to play background music:', err);
-          setIsMusicPlaying(false);
-        }
-      } else {
-        backgroundMusic.pause();
-      }
-    };
-
-    playMusic();
-  }, [isMusicPlaying]);
-
-  // Cleanup music on unmount
-  useEffect(() => {
-    return () => {
-      backgroundMusic.pause();
-      backgroundMusic.currentTime = 0;
-    };
-  }, []);
-
-  const handleStart = () => {
-    // Ensure music starts playing when game starts
-    setIsMusicPlaying(true);
-    setShowContent(true);
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 5000);
-  };
-
-  const handleInfoClick = (type) => {
-    createButtonPress();
-    setScore(prev => prev + 10);
-    switch(type) {
-      case 'location':
-        window.open('https://maps.google.com/?q=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'calendar':
-        window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Temi%27s+25th+Birthday&dates=20250615T120000Z/20250615T230000Z&location=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'share':
-        window.open('https://wa.me/?text=Hey!%20I%20just%20got%20invited%20to%20Temi%27s%2025th%20Birthday!%20Are%20you%20going?');
-        break;
-    }
-  };
-
-  const handleEasterEggClick = (id) => {
-    setScore(prev => prev + 50);
-    setEasterEggs(prev => prev.filter(egg => egg.id !== id));
-    createButtonPress();
-  };
-
-  const toggleMusic = () => {
-    setIsMusicPlaying(prev => !prev);
-  };
 
   // Create easter eggs
   useEffect(() => {
@@ -377,6 +265,34 @@ const BirthdayInvite = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleStart = () => {
+    setShowContent(true);
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 5000);
+  };
+
+  const handleInfoClick = (type) => {
+    createButtonPress();
+    setScore(prev => prev + 10);
+    switch(type) {
+      case 'location':
+        window.open('https://maps.google.com/?q=129+William+Mundy+Way,+Dartford,+UK');
+        break;
+      case 'calendar':
+        window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Temi%27s+25th+Birthday&dates=20250615T120000Z/20250615T230000Z&location=129+William+Mundy+Way,+Dartford,+UK');
+        break;
+      case 'share':
+        window.open('https://wa.me/?text=Hey!%20I%20just%20got%20invited%20to%20Temi%27s%2025th%20Birthday!%20Are%20you%20going?');
+        break;
+    }
+  };
+
+  const handleEasterEggClick = (id) => {
+    setScore(prev => prev + 50);
+    setEasterEggs(prev => prev.filter(egg => egg.id !== id));
+    createButtonPress();
+  };
+
   const createButtonPress = () => {
     const press = {
       id: Date.now(),
@@ -391,14 +307,6 @@ const BirthdayInvite = () => {
 
   return (
     <Container ref={containerRef}>
-      <SoundControl
-        onClick={toggleMusic}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        {isMusicPlaying ? '🔊' : '🔇'}
-      </SoundControl>
-
       <ScoreDisplay
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
