@@ -25,15 +25,15 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html,
-    body {
+    html {
       width: 100%;
       height: 100%;
-      overflow-x: hidden;
-      position: relative;
+      scroll-behavior: smooth;
     }
 
     body {
+      width: 100%;
+      min-height: 100%;
       background: #000000;
       color: #FFFFFF;
       font-family: 'Inter', sans-serif;
@@ -41,6 +41,8 @@
       transition: opacity 0.3s ease-in-out;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      position: relative;
     }
 
     body.loaded {
@@ -49,41 +51,32 @@
 
     #root {
       width: 100%;
-      min-height: 100vh;
+      min-height: 100%;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       padding: 1rem;
-      overflow-x: hidden;
-    }
-
-    html {
-      scroll-behavior: smooth;
     }
 
     /* iPhone specific fixes */
     @supports (-webkit-touch-callout: none) {
       body {
-        /* Prevent overscroll bounce */
-        position: fixed;
-        width: 100%;
-        height: 100%;
+        /* Allow natural scrolling */
+        position: relative;
+        height: auto;
+        min-height: 100%;
       }
 
       #root {
-        /* Allow scrolling within the root element */
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        /* Allow natural scrolling */
+        position: relative;
+        height: auto;
+        min-height: 100%;
       }
     }
   </style>
-  <script type="module" crossorigin src="/birthday-template/assets/index-B_JNZuTD.js"></script>
-  <link rel="stylesheet" crossorigin href="/birthday-template/assets/index-ByzyRvrY.css">
+  <script type="module" crossorigin src="/birthday-template/assets/index-CyUnPcuR.js"></script>
+  <link rel="stylesheet" crossorigin href="/birthday-template/assets/index-BHi9afzC.css">
 </head>
 
 <body>
