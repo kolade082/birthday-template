@@ -12,11 +12,13 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "framer-motion": "^12.11.3",
+    "canvas-confetti": "^1.9.3",
+    "framer-motion": "^12.15.0",
     "lucide-react": "^0.510.0",
     "react": "^19.1.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.1.0",
+    "react-icons": "^5.5.0",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
@@ -32,5 +34,4 @@
     "vite": "^6.3.5"
   },
   "homepage": "https://kolade082.github.io/birthday-template/"
-  
 }

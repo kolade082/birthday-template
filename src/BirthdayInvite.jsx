@@ -1,496 +1,227 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import styled from 'styled-components';
-import Confetti from 'react-confetti';
+// eslint-disable-next-line no-unused-vars
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { FaGlassCheers, FaUtensils, FaTshirt, FaGift } from 'react-icons/fa';
+import { MdEvent, MdLocationOn } from 'react-icons/md';
 
-const Container = styled.div`
-  min-height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #000;
-  overflow: hidden;
-  position: relative;
-  font-family: 'Press Start 2P', cursive;
-`;
-
-const ArcadeScreen = styled(motion.div)`
-  width: 90vw;
-  height: 80vh;
-  max-width: 1200px;
-  background: #000;
-  border: 20px solid #ff0080;
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 50px rgba(255, 0, 128, 0.5);
-`;
-
-const ScreenContent = styled(motion.div)`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-`;
-
-const Title = styled(motion.h1)`
-  font-size: clamp(1.5rem, 4vw, 3rem);
-  color: #ff0080;
-  text-shadow: 0 0 10px #ff0080;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-`;
-
-const InfoBox = styled(motion.div)`
-  background: rgba(255, 0, 128, 0.1);
-  border: 2px solid #ff0080;
-  padding: 20px;
-  border-radius: 10px;
-  margin: 10px 0;
-  width: 80%;
-  max-width: 600px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 0, 128, 0.2);
-    transform: scale(1.05);
-  }
-`;
-
-const InfoText = styled.div`
-  font-size: clamp(0.8rem, 2vw, 1.2rem);
-  color: #fff;
-  margin: 5px 0;
-`;
-
-const InfoLabel = styled.div`
-  font-size: clamp(0.6rem, 1.5vw, 0.9rem);
-  color: #ff0080;
-  margin-bottom: 5px;
-`;
-
-const StartButton = styled(motion.button)`
-  background: #ff0080;
-  color: white;
-  border: none;
-  padding: 20px 40px;
-  font-size: 1.2rem;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 2rem;
-  font-family: 'Press Start 2P', cursive;
-  text-transform: uppercase;
-  box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    transition: 0.5s;
-  }
-
-  &:hover::before {
-    left: 100%;
-  }
-`;
-
-const GlitchText = styled(motion.span)`
-  position: relative;
-  display: inline-block;
-  animation: glitch 1s infinite;
-
-  @keyframes glitch {
-    0% {
-      transform: translate(0);
-    }
-    20% {
-      transform: translate(-2px, 2px);
-    }
-    40% {
-      transform: translate(-2px, -2px);
-    }
-    60% {
-      transform: translate(2px, 2px);
-    }
-    80% {
-      transform: translate(2px, -2px);
-    }
-    100% {
-      transform: translate(0);
-    }
-  }
-`;
-
-const Pixel = styled(motion.div)`
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #ff0080;
-  pointer-events: none;
-`;
-
-const Scanline = styled(motion.div)`
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: rgba(255, 0, 128, 0.3);
-  pointer-events: none;
-  z-index: 10;
-`;
-
-const ButtonPress = styled(motion.div)`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 0, 128, 0.3);
-  border-radius: inherit;
-  pointer-events: none;
-`;
-
-const ArcadeGlow = styled(motion.div)`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, rgba(255, 0, 128, 0.2) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-`;
-
-const Vignette = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
-  pointer-events: none;
-  z-index: 2;
-`;
-
-const ScoreDisplay = styled(motion.div)`
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 0, 128, 0.2);
-  border: 2px solid #ff0080;
-  color: #ff0080;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 1rem;
-  z-index: 100;
-  backdrop-filter: blur(5px);
-`;
-
-const EasterEgg = styled(motion.div)`
-  position: absolute;
-  font-size: 2rem;
-  cursor: pointer;
-  user-select: none;
-  z-index: 5;
-  filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.5));
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.2) rotate(10deg);
-    filter: drop-shadow(0 0 20px rgba(255, 0, 128, 0.8));
-  }
-`;
+// Import the image using a dynamic import
+const Image1 = new URL('./assets/img1.jpeg', import.meta.url).href;
+const Image2 = new URL('./assets/img2.jpeg', import.meta.url).href;
+const Image3 = new URL('./assets/img3.jpeg', import.meta.url).href;
 
 const BirthdayInvite = () => {
-  const [showContent, setShowContent] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [pixels, setPixels] = useState([]);
-  const [scanlinePosition, setScanlinePosition] = useState(0);
-  const [buttonPresses, setButtonPresses] = useState([]);
-  const [score, setScore] = useState(0);
-  const [easterEggs, setEasterEggs] = useState([]);
-  const containerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Create easter eggs
   useEffect(() => {
-    const emojis = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎪', '🎯'];
-    const eggs = emojis.map((emoji, index) => ({
-      id: index,
-      emoji,
-      x: Math.random() * 80 + 10,
-      y: Math.random() * 80 + 10,
-    }));
-    setEasterEggs(eggs);
-  }, []);
-
-  // Create pixel effect
-  useEffect(() => {
-    const createPixel = () => {
-      const pixel = {
-        id: Date.now() + Math.random(),
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 3 + 1,
-      };
-      setPixels(prev => [...prev, pixel]);
-      setTimeout(() => {
-        setPixels(prev => prev.filter(p => p.id !== pixel.id));
-      }, 1000);
+    setIsVisible(true);
+    
+    const balloonColors = [
+      '#000000', // Black
+      '#1A1A1A', // Dark Gray
+      '#333333', // Charcoal
+      '#4D4D4D', // Dark Silver
+      '#666666', // Silver Gray
+      '#808080', // Silver
+      '#A9A9A9', // Light Silver
+      '#C0C0C0', // Bright Silver
+      '#D3D3D3', // Light Gray
+      '#E8E8E8'  // Platinum
+    ];
+    
+    // Create balloons
+    const createBalloon = () => {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      balloon.style.left = `${Math.random() * 100}vw`;
+      balloon.style.top = `${Math.random() * 100}vh`;
+      balloon.style.opacity = '0.9';
+      balloon.style.transform = `scale(${Math.random() * 0.2 + 0.9})`;
+      balloon.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+      document.body.appendChild(balloon);
+      
+      // Remove balloon after animation
+      balloon.addEventListener('animationend', () => {
+        balloon.remove();
+      });
     };
 
-    const interval = setInterval(createPixel, 100);
-    return () => clearInterval(interval);
-  }, []);
+    // Create initial balloons
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => createBalloon(), i * 200);
+    }
 
-  // Animate scanline
-  useEffect(() => {
-    const animateScanline = () => {
-      setScanlinePosition(prev => (prev + 1) % 100);
+    // Create balloons periodically
+    const balloonInterval = setInterval(createBalloon, 2000);
+    
+    // Continuous confetti
+    const randomInRange = (min, max) => Math.random() * (max - min) + min;
+    
+    const interval = setInterval(() => {
+      confetti({
+        startVelocity: 30,
+        spread: 360,
+        ticks: 60,
+        zIndex: 0,
+        particleCount: 15,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#C0C0C0', '#808080', '#FFFFFF', '#A9A9A9', '#D3D3D3']
+      });
+      confetti({
+        startVelocity: 30,
+        spread: 360,
+        ticks: 60,
+        zIndex: 0,
+        particleCount: 15,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#C0C0C0', '#808080', '#FFFFFF', '#A9A9A9', '#D3D3D3']
+      });
+    }, 200);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(balloonInterval);
+      // Clean up any remaining balloons
+      document.querySelectorAll('.balloon').forEach(balloon => balloon.remove());
     };
-
-    const interval = setInterval(animateScanline, 50);
-    return () => clearInterval(interval);
   }, []);
 
-  const handleStart = () => {
-    setShowContent(true);
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 5000);
-  };
-
-  const handleInfoClick = (type) => {
-    createButtonPress();
-    setScore(prev => prev + 10);
-    switch(type) {
-      case 'location':
-        window.open('https://maps.google.com/?q=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'calendar':
-        window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Temi%27s+25th+Birthday&dates=20250615T120000Z/20250615T230000Z&location=129+William+Mundy+Way,+Dartford,+UK');
-        break;
-      case 'share':
-        window.open('https://wa.me/?text=Hey!%20I%20just%20got%20invited%20to%20Temi%27s%2025th%20Birthday!%20Are%20you%20going?');
-        break;
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        duration: 0.15,
+        staggerChildren: 0.01
+      }
     }
   };
 
-  const handleEasterEggClick = (id) => {
-    setScore(prev => prev + 50);
-    setEasterEggs(prev => prev.filter(egg => egg.id !== id));
-    createButtonPress();
-  };
-
-  const createButtonPress = () => {
-    const press = {
-      id: Date.now(),
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-    };
-    setButtonPresses(prev => [...prev, press]);
-    setTimeout(() => {
-      setButtonPresses(prev => prev.filter(p => p.id !== press.id));
-    }, 500);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 5 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.1,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    }
   };
 
   return (
-    <Container ref={containerRef}>
-      <ScoreDisplay
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+    <motion.div 
+      className="invite-container"
+      initial="hidden"
+      animate={isVisible ? "visible" : "hidden"}
+      variants={containerVariants}
+    >
+      <motion.div 
+        className="profile-section"
+        variants={itemVariants}
       >
-        SCORE: {score}
-      </ScoreDisplay>
-
-      <Vignette />
-      <ArcadeGlow
-        animate={{
-          opacity: [0.3, 0.5, 0.3],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-        }}
-      />
-      {showConfetti && <Confetti />}
-      
-      {easterEggs.map(egg => (
-        <EasterEgg
-          key={egg.id}
-          initial={{ x: `${egg.x}%`, y: `${egg.y}%`, opacity: 0 }}
-          animate={{ opacity: 1 }}
-          whileHover={{ scale: 1.2 }}
-          onClick={() => handleEasterEggClick(egg.id)}
+        <div className="profile-images">
+          <motion.img 
+            src={Image2}
+            alt="Birthday Person" 
+            className="profile-image"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 500, damping: 10 }}
+          />
+          <motion.img 
+            src={Image1}
+            alt="Birthday Person" 
+            className="profile-image"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 500, damping: 10 }}
+          />
+          <motion.img 
+            src={Image3}
+            alt="Birthday Person" 
+            className="profile-image"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 500, damping: 10 }}
+          />
+        </div>
+        <motion.h1 
+          className="invite-title"
+          variants={itemVariants}
         >
-          {egg.emoji}
-        </EasterEgg>
-      ))}
+          Join Us for a Special Celebration!
+        </motion.h1>
+        <motion.p 
+          className="invite-subtitle"
+          variants={itemVariants}
+        >
+          We're turning 25 and we want you there!
+        </motion.p>
+      </motion.div>
 
-      {pixels.map(pixel => (
-        <Pixel
-          key={pixel.id}
-          initial={{ x: `${pixel.x}%`, y: `${pixel.y}%`, opacity: 1 }}
-          animate={{
-            y: `${pixel.y + 20}%`,
-            opacity: 0,
-          }}
-          transition={{ duration: 1 }}
-          style={{
-            width: pixel.size,
-            height: pixel.size,
-          }}
-        />
-      ))}
-
-      {buttonPresses.map(press => (
-        <ButtonPress
-          key={press.id}
-          initial={{ 
-            x: `${press.x}%`, 
-            y: `${press.y}%`,
-            scale: 0,
-            opacity: 0.5
-          }}
-          animate={{
-            scale: [0, 1, 0],
-            opacity: [0.5, 0, 0],
-          }}
-          transition={{ duration: 0.5 }}
-        />
-      ))}
-
-      <Scanline
-        style={{ top: `${scanlinePosition}%` }}
-        animate={{
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 1,
-          repeat: Infinity,
-        }}
-      />
-      
-      <ArcadeScreen
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      <motion.div 
+        className="details-section"
+        variants={containerVariants}
       >
-        <ScreenContent>
-          <AnimatePresence>
-            {!showContent ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <Title>
-                  <GlitchText>INSERT COIN</GlitchText>
-                  <br />
-                  TO START THE PARTY!
-                </Title>
-                <StartButton
-                  onClick={handleStart}
-                  whileHover={{ 
-                    scale: 1.1,
-                    boxShadow: "0 0 30px rgba(255, 0, 128, 0.8)"
-                  }}
-                  whileTap={{ 
-                    scale: 0.9,
-                    boxShadow: "0 0 10px rgba(255, 0, 128, 0.4)"
-                  }}
-                >
-                  START GAME
-                </StartButton>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <Title>
-                  <GlitchText>TEMI'S 25TH</GlitchText>
-                  <br />
-                  BIRTHDAY PARTY
-                </Title>
+        <motion.div 
+          className="detail-item"
+          variants={itemVariants}
+          whileHover={{ y: -5 }}
+        >
+          <div className="detail-image">
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&auto=format&fit=crop&q=80" alt="Event" />
+            <div className="image-overlay"></div>
+          </div>
+          <div className="detail-content">
+            <h3><MdEvent className="icon" /> Let's Party! 🎉</h3>
+            <p>Yo! The vibes are gonna be crazy on June 14th! We're turning up at 129 William Mundy Way, DA1 5XQ. Come through and let's make some memories! No boring stuff, just pure fun! 🎊</p>
+          </div>
+        </motion.div>
 
-                <InfoBox 
-                  onClick={() => handleInfoClick('location')}
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
-                  }}
-                  whileTap={{ 
-                    scale: 0.95,
-                    boxShadow: "0 0 10px rgba(255, 0, 128, 0.3)"
-                  }}
-                >
-                  <InfoLabel>LOCATION</InfoLabel>
-                  <InfoText>129 William Mundy Way, Dartford, UK</InfoText>
-                </InfoBox>
+        <motion.div 
+          className="detail-item"
+          variants={itemVariants}
+          whileHover={{ y: -5 }}
+        >
+          <div className="detail-image">
+            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80" alt="Dinner and Drinks" />
+            <div className="image-overlay"></div>
+          </div>
+          <div className="detail-content">
+            <h3><FaUtensils className="icon" /> Food & Drinks Galore! 🍽️</h3>
+            <p>Listen up! We've got ALL the good stuff - food, drinks, you name it! Come hungry because we're feeding everyone! No holding back, just eat and drink whatever you see! 🍕🍹</p>
+          </div>
+        </motion.div>
 
-                <InfoBox 
-                  onClick={() => handleInfoClick('calendar')}
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
-                  }}
-                  whileTap={{ 
-                    scale: 0.95,
-                    boxShadow: "0 0 10px rgba(255, 0, 128, 0.3)"
-                  }}
-                >
-                  <InfoLabel>DATE & TIME</InfoLabel>
-                  <InfoText>June 15th, 2025 at 12:00 PM</InfoText>
-                </InfoBox>
+        <motion.div 
+          className="detail-item"
+          variants={itemVariants}
+          whileHover={{ y: -5 }}
+        >
+          <div className="detail-image">
+            <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=800&auto=format&fit=crop&q=80" alt="Attire" />
+            <div className="image-overlay"></div>
+          </div>
+          <div className="detail-content">
+            <h3><FaTshirt className="icon" /> Dress to Impress! ✨</h3>
+            <p>Time to shine! Rock your best white and silver outfits! Let's make this party look like a starry night! No boring colors allowed! 💫</p>
+          </div>
+        </motion.div>
 
-                <InfoBox 
-                  onClick={() => handleInfoClick('share')}
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 20px rgba(255, 0, 128, 0.5)"
-                  }}
-                  whileTap={{ 
-                    scale: 0.95,
-                    boxShadow: "0 0 10px rgba(255, 0, 128, 0.3)"
-                  }}
-                >
-                  <InfoLabel>SHARE WITH FRIENDS</InfoLabel>
-                  <InfoText>Click to share on WhatsApp</InfoText>
-                </InfoBox>
-
-                <StartButton
-                  onClick={() => window.location.reload()}
-                  whileHover={{ 
-                    scale: 1.1,
-                    boxShadow: "0 0 30px rgba(255, 0, 128, 0.8)"
-                  }}
-                  whileTap={{ 
-                    scale: 0.9,
-                    boxShadow: "0 0 10px rgba(255, 0, 128, 0.4)"
-                  }}
-                >
-                  PLAY AGAIN
-                </StartButton>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </ScreenContent>
-      </ArcadeScreen>
-    </Container>
+        <motion.div 
+          className="detail-item"
+          variants={itemVariants}
+          whileHover={{ y: -5 }}
+        >
+          <div className="detail-image">
+            <img src="https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80" alt="Gifts" />
+            <div className="image-overlay"></div>
+          </div>
+          <div className="detail-content">
+            <h3><FaGift className="icon" /> Just Bring the Vibes! 🎁</h3>
+            <p>Your presence is the best present! But hey, if you really want to bring something, we won't say no! 😉 Just come ready to have the time of your life! 🎈</p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 };
 
