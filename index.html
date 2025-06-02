@@ -5,13 +5,54 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/birthday-template/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite + React</title>
-  <script type="module" crossorigin src="/birthday-template/assets/index-C3LmcBRn.js"></script>
-  <link rel="stylesheet" crossorigin href="/birthday-template/assets/index-Dtn62Xmo.css">
+  <meta name="description" content="Join us for a special birthday celebration!" />
+  <meta name="theme-color" content="#000000" />
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Load Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <title>Temi's Birthday Celebration</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000000;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    #root {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+  <script type="module" crossorigin src="/birthday-template/assets/index-B_JNZuTD.js"></script>
+  <link rel="stylesheet" crossorigin href="/birthday-template/assets/index-ByzyRvrY.css">
 </head>
 
 <body>
   <div id="root"></div>
+  <script>
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
 </body>
 
 </html>
