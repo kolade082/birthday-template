@@ -147,13 +147,13 @@ const BirthdayInvite = () => {
           className="invite-title"
           variants={itemVariants}
         >
-          Join Us for a Special Celebration!
+          Join Me for a Special Celebration!
         </motion.h1>
         <motion.p 
           className="invite-subtitle"
           variants={itemVariants}
         >
-          We're turning 25 and we want you there!
+          I'm turning 25 and I want you there!
         </motion.p>
       </motion.div>
 
@@ -172,7 +172,7 @@ const BirthdayInvite = () => {
           </div>
           <div className="detail-content">
             <h3><MdEvent className="icon" /> Let's Party! 🎉</h3>
-            <p>Yo! The vibes are gonna be crazy on June 14th! We're turning up at 129 William Mundy Way, DA1 5XQ. Come through and let's make some memories! No boring stuff, just pure fun! 🎊</p>
+            <p>Yo! The vibes are gonna be crazy on June 14th! I'm turning up at 129 William Mundy Way, DA1 5XQ. Come through and let's make some memories! No boring stuff, just pure fun! 🎊</p>
           </div>
         </motion.div>
 
@@ -187,7 +187,7 @@ const BirthdayInvite = () => {
           </div>
           <div className="detail-content">
             <h3><FaUtensils className="icon" /> Food & Drinks Galore! 🍽️</h3>
-            <p>Listen up! We've got ALL the good stuff - food, drinks, you name it! Come hungry because we're feeding everyone! No holding back, just eat and drink whatever you see! 🍕🍹</p>
+            <p>Listen up! I've got ALL the good stuff - food, drinks, you name it! Come hungry because I'm feeding everyone! No holding back, just eat and drink whatever you see! 🍕🍹</p>
           </div>
         </motion.div>
 
@@ -217,7 +217,7 @@ const BirthdayInvite = () => {
           </div>
           <div className="detail-content">
             <h3><FaGift className="icon" /> Just Bring the Vibes! 🎁</h3>
-            <p>Your presence is the best present! But hey, if you really want to bring something, we won't say no! 😉 Just come ready to have the time of your life! 🎈</p>
+            <p>Your presence is the best present! But hey, if you really want to bring something, I won't say no! 😉 Just come ready to have the time of your life! 🎈</p>
           </div>
         </motion.div>
       </motion.div>
