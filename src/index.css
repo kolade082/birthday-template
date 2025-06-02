@@ -40,7 +40,7 @@ body::before {
 }
 
 .invite-container {
-  width: min(1200px, 95%);
+  width: 100%;
   background: var(--card);
   border-radius: 20px;
   box-shadow: 0 20px 40px var(--shadow);
@@ -49,7 +49,7 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .profile-section {
@@ -66,12 +66,11 @@ body::before {
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
   position: relative;
   align-items: end;
-  height: 400px;
+  height: auto;
   justify-items: center;
   perspective: 1000px;
 }
@@ -334,17 +333,17 @@ body::before {
   }
 
   .profile-image {
-    width: 250px;
-    height: 320px;
+    width: 220px;
+    height: 280px;
     margin: 0 -30px;
   }
 
   .profile-image:nth-child(1) {
-    margin-right: -45px;
+    margin-right: -40px;
   }
 
   .profile-image:nth-child(3) {
-    margin-left: -45px;
+    margin-left: -40px;
   }
 }
 
@@ -400,17 +399,17 @@ body::before {
   }
 
   .profile-image {
-    width: 250px;
-    height: 320px;
-    margin: 0 -30px;
+    width: 180px;
+    height: 230px;
+    margin: 0 -25px;
   }
 
   .profile-image:nth-child(1) {
-    margin-right: -45px;
+    margin-right: -35px;
   }
 
   .profile-image:nth-child(3) {
-    margin-left: -45px;
+    margin-left: -35px;
   }
 }
 
@@ -451,13 +450,14 @@ body::before {
   }
 
   .profile-images {
-    height: 280px;
-    padding: 0.8rem;
+    padding: 0;
+    margin: 0;
+    height: auto;
   }
 
   .profile-image {
-    width: 160px;
-    height: 220px;
+    width: 120px;
+    height: 160px;
     margin: 0 -20px;
   }
 
@@ -465,8 +465,19 @@ body::before {
     margin-right: -30px;
   }
 
+  .profile-image:nth-child(2) {
+    margin-top: 0;
+    transform: scale(1);
+  }
+
   .profile-image:nth-child(3) {
     margin-left: -30px;
+  }
+
+  .invite-container {
+    padding: 0.5rem;
+    gap: 1rem;
+    border-radius: 0;
   }
 }
 
@@ -503,13 +514,13 @@ body::before {
   }
 
   .profile-images {
-    height: 260px;
-    padding: 0.6rem;
+    height: 180px;
+    padding: 0.4rem;
   }
 
   .profile-image {
-    width: 140px;
-    height: 200px;
+    width: 100px;
+    height: 140px;
     margin: 0 -15px;
   }
 
@@ -519,6 +530,11 @@ body::before {
 
   .profile-image:nth-child(3) {
     margin-left: -25px;
+  }
+
+  .invite-container {
+    padding: 0.3rem;
+    gap: 0.8rem;
   }
 }
 
@@ -564,14 +580,14 @@ body::before {
   }
 
   .profile-images {
-    height: 240px;
-    padding: 0.5rem;
+    height: 160px;
+    padding: 0.3rem;
   }
 
   .profile-image {
-    width: 120px;
-    height: 180px;
-    margin: 0 -15px;
+    width: 90px;
+    height: 120px;
+    margin: 0 -12px;
   }
 
   .profile-image:nth-child(1) {
